@@ -87,13 +87,15 @@
                 <h2 class="text-xl font-bold">Klientská zóna - <span id="client-company-name"></span></h2>
                 <button onclick="logout()" class="text-red-600 hover:underline">Odhlásit</button>
             </div>
-<div class="bg-white p-6 rounded-lg shadow mb-6">
-    <h3 class="text-lg font-semibold mb-4">Změna přístupového hesla</h3>
-    <form id="change-password-form" class="flex flex-col md:flex-row gap-3">
-        <input type="password" id="new-password" placeholder="Nové heslo" class="border p-2 rounded w-full" required>
-        <button type="submit" class="bg-orange-600 text-white px-6 py-2 rounded hover:bg-orange-700 transition">Aktualizovat heslo</button>
-    </form>
-</div>
+
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold mb-4">Změna přístupového hesla</h3>
+                <form id="change-password-form" class="flex flex-col md:flex-row gap-3">
+                    <input type="password" id="new-password" placeholder="Nové heslo" class="border p-2 rounded w-full" required>
+                    <button type="submit" class="bg-orange-600 text-white px-6 py-2 rounded hover:bg-orange-700 transition">Aktualizovat heslo</button>
+                </form>
+            </div>
+
             <div class="bg-white p-6 rounded-lg shadow">
                 <h3 class="text-lg font-semibold mb-4">Vaše nadcházející lhůty BOZP a PO</h3>
                 <div class="overflow-x-auto">
@@ -115,18 +117,15 @@
     </div>
     
     <script>
-        // SEM VLOŽ SVOU URL Z GOOGLE APPS SCRIPTU
         const API_URL = 'https://script.google.com/macros/s/AKfycbx6e9SC3eu8CUQEJkBNtC_qiGxE9B8yRAVVUkkE7YOXD73bIJ0Mp0CEpmk7E3bZvfYI/exec'; 
 
         let currentUser = null;
         let adminClientsCache = [];
 
-        // Zobrazení načítání
         function showLoader(show) {
-            document.getElementById('loader').style.display = show ? 'flex' : 'none';
+            document.getElementById('loader').classList.toggle('hidden', !show);
         }
 
-        // Komunikace s Google Apps Script API
         async function apiCall(dataPayload) {
             try {
                 const response = await fetch(API_URL, {
@@ -142,7 +141,6 @@
             }
         }
 
-        // PŘIHLÁŠENÍ
         document.getElementById('login-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const email = document.getElementById('email').value;
@@ -162,159 +160,25 @@
             }
         });
 
+        document.getElementById('change-password-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const newPassword = document.getElementById('new-password').value;
+            if (!confirm('Opravdu si přejete změnit své heslo?')) return;
+
+            showLoader(true);
+            const res = await apiCall({ 
+                action: 'change_password', 
+                email: currentUser.email, 
+                newPassword: newPassword 
+            });
+            showLoader(false);
+
+            if (res.success) {
+                alert('Heslo úspěšně změněno.');
+                this.reset();
+            } else {
+                alert('Chyba: Heslo se nepodařilo změnit.');
+            }
+        });
+
         function logout() {
-            currentUser = null;
-            document.getElementById('login-form').reset();
-            showScreen('login');
-        }
-
-        function showScreen(screenName) {
-            ['login-screen', 'admin-screen', 'client-screen'].forEach(id => {
-                document.getElementById(id).style.display = 'none';
-            });
-            document.getElementById(screenName + '-screen').style.display = 'block';
-        }
-
-        // --- ADMIN ---
-        async function initAdmin() {
-            showLoader(true);
-            const res = await apiCall({ action: 'get_admin_data' });
-            showLoader(false);
-
-            if (res.success) {
-                adminClientsCache = res.clients;
-                updateCompanySelect();
-                renderAdminTasks(res.tasks);
-            }
-        }
-
-        // Nová společnost
-        document.getElementById('add-company-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const companyName = document.getElementById('comp-name').value;
-            const email = document.getElementById('comp-email').value;
-            const password = document.getElementById('comp-pass').value;
-
-            showLoader(true);
-            const res = await apiCall({ action: 'add_user', companyName, email, password });
-            showLoader(false);
-
-            if (res.success) {
-                alert('Společnost uložena.');
-                this.reset();
-                initAdmin(); // Znovu načteme data
-            }
-        });
-
-        // Nová lhůta
-        document.getElementById('add-task-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const companyEmail = document.getElementById('task-company').value;
-            const title = document.getElementById('task-title').value;
-            const date = document.getElementById('task-date').value;
-            const period = document.getElementById('task-period').value;
-
-            showLoader(true);
-            const res = await apiCall({ action: 'add_task', companyEmail, title, date, period });
-            showLoader(false);
-
-            if (res.success) {
-                alert('Lhůta uložena.');
-                this.reset();
-                initAdmin(); // Znovu načteme data
-            }
-        });
-
-        function updateCompanySelect() {
-            const select = document.getElementById('task-company');
-            select.innerHTML = '<option value="">Vyberte společnost...</option>';
-            adminClientsCache.forEach(c => {
-                select.innerHTML += `<option value="${c.email}">${c.companyName}</option>`;
-            });
-        }
-
-        function renderAdminTasks(tasks) {
-            const tbody = document.getElementById('admin-tasks-list');
-            tbody.innerHTML = '';
-            
-            tasks.sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(t => {
-                const client = adminClientsCache.find(c => c.email === t.companyEmail);
-                const companyName = client ? client.companyName : t.companyEmail;
-                
-                // Převod formátu data z Google Sheets
-                const d = new Date(t.date);
-                const formattedDate = !isNaN(d) ? d.toLocaleDateString('cs-CZ') : t.date;
-
-                tbody.innerHTML += `
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="p-2 font-medium">${companyName}</td>
-                        <td class="p-2">${t.title}</td>
-                        <td class="p-2">${formattedDate}</td>
-                        <td class="p-2">${t.period} měs.</td>
-                    </tr>`;
-            });
-        }
-
-        // --- KLIENT ---
-        async function initClient() {
-            document.getElementById('client-company-name').textContent = currentUser.companyName;
-            
-            showLoader(true);
-            const res = await apiCall({ action: 'get_client_data', email: currentUser.email });
-            showLoader(false);
-
-            if (res.success) {
-                renderClientTasks(res.tasks);
-            }
-        }
-
-        function renderClientTasks(tasks) {
-            const tbody = document.getElementById('client-tasks-list');
-            tbody.innerHTML = '';
-            const today = new Date();
-
-            tasks.sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(t => {
-                const taskDate = new Date(t.date);
-                const formattedDate = !isNaN(taskDate) ? taskDate.toLocaleDateString('cs-CZ') : t.date;
-                
-                const diffTime = taskDate - today;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
-                let statusBadge = '<span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">V pořádku</span>';
-                if (diffDays < 0) statusBadge = '<span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">Po termínu</span>';
-                else if (diffDays <= 30) statusBadge = '<span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded">Brzy vyprší</span>';
-
-                tbody.innerHTML += `
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="p-2 font-medium">${t.title}</td>
-                        <td class="p-2">${formattedDate}</td>
-                        <td class="p-2 text-gray-500">${t.period} měsíců</td>
-                        <td class="p-2">${statusBadge}</td>
-                    </tr>`;
-            });
-        }
-        // Obsluha změny hesla
-document.getElementById('change-password-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const newPassword = document.getElementById('new-password').value;
-
-    if (!confirm('Opravdu si přejete změnit své heslo?')) return;
-
-    showLoader(true);
-    const res = await apiCall({ 
-        action: 'change_password', 
-        email: currentUser.email, 
-        newPassword: newPassword 
-    });
-    showLoader(false);
-
-    if (res.success) {
-        alert('Heslo bylo úspěšně změněno. Při příštím přihlášení použijte nové heslo.');
-        this.reset();
-    } else {
-        alert('Chyba: Heslo se nepodařilo změnit.');
-    }
-});
-    </script>
-</body>
-</html>
