@@ -293,6 +293,28 @@
                     </tr>`;
             });
         }
+        // Obsluha změny hesla
+document.getElementById('change-password-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const newPassword = document.getElementById('new-password').value;
+
+    if (!confirm('Opravdu si přejete změnit své heslo?')) return;
+
+    showLoader(true);
+    const res = await apiCall({ 
+        action: 'change_password', 
+        email: currentUser.email, 
+        newPassword: newPassword 
+    });
+    showLoader(false);
+
+    if (res.success) {
+        alert('Heslo bylo úspěšně změněno. Při příštím přihlášení použijte nové heslo.');
+        this.reset();
+    } else {
+        alert('Chyba: Heslo se nepodařilo změnit.');
+    }
+});
     </script>
 </body>
 </html>
