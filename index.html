@@ -87,7 +87,13 @@
                 <h2 class="text-xl font-bold">Klientská zóna - <span id="client-company-name"></span></h2>
                 <button onclick="logout()" class="text-red-600 hover:underline">Odhlásit</button>
             </div>
-
+<div class="bg-white p-6 rounded-lg shadow mb-6">
+    <h3 class="text-lg font-semibold mb-4">Změna přístupového hesla</h3>
+    <form id="change-password-form" class="flex flex-col md:flex-row gap-3">
+        <input type="password" id="new-password" placeholder="Nové heslo" class="border p-2 rounded w-full" required>
+        <button type="submit" class="bg-orange-600 text-white px-6 py-2 rounded hover:bg-orange-700 transition">Aktualizovat heslo</button>
+    </form>
+</div>
             <div class="bg-white p-6 rounded-lg shadow">
                 <h3 class="text-lg font-semibold mb-4">Vaše nadcházející lhůty BOZP a PO</h3>
                 <div class="overflow-x-auto">
@@ -107,10 +113,34 @@
         </div>
 
     </div>
+    
+    // Obsluha změny hesla
+document.getElementById('change-password-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const newPassword = document.getElementById('new-password').value;
 
+    if (!confirm('Opravdu si přejete změnit své heslo?')) return;
+
+    showLoader(true);
+    const res = await apiCall({ 
+        action: 'change_password', 
+        email: currentUser.email, 
+        newPassword: newPassword 
+    });
+    showLoader(false);
+
+    if (res.success) {
+        alert('Heslo bylo úspěšně změněno. Při příštím přihlášení použijte nové heslo.');
+        this.reset();
+    } else {
+        alert('Chyba: Heslo se nepodařilo změnit.');
+    }
+});
+
+    
     <script>
         // SEM VLOŽ SVOU URL Z GOOGLE APPS SCRIPTU
-        const API_URL = 'https://script.google.com/macros/s/AKfycbz-KT3bLL0ZXepc4Mis_b_TP2EYH2b_bVxJzUmIavTQGjhp5ryOyWNk_C5tHB26XgUw/exec'; 
+        const API_URL = 'https://script.google.com/macros/s/AKfycbx6e9SC3eu8CUQEJkBNtC_qiGxE9B8yRAVVUkkE7YOXD73bIJ0Mp0CEpmk7E3bZvfYI/exec'; 
 
         let currentUser = null;
         let adminClientsCache = [];
