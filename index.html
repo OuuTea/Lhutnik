@@ -87,7 +87,50 @@
                 <h2 class="text-xl font-bold">Klientská zóna - <span id="client-company-name"></span></h2>
                 <button onclick="logout()" class="text-red-600 hover:underline">Odhlásit</button>
             </div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <button onclick="openRequestModal('Školení')" class="bg-blue-600 text-white p-4 rounded-lg shadow hover:bg-blue-700 transition font-bold">
+        📢 Poptávka školení
+    </button>
+    <button onclick="openRequestModal('Revize')" class="bg-green-600 text-white p-4 rounded-lg shadow hover:bg-green-700 transition font-bold">
+        🛠️ Poptávka revize / kontroly
+    </button>
+</div>
 
+<div id="request-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50 p-4">
+    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+        <h3 id="modal-title" class="text-xl font-bold mb-4">Poptávka</h3>
+        <form id="request-form" class="space-y-3">
+            <input type="hidden" id="req-type">
+            <div>
+                <label id="label-detail" class="block text-sm font-medium text-gray-700">Název / Typ</label>
+                <input type="text" id="req-detail" class="w-full border p-2 rounded" required>
+            </div>
+            <div id="group-people">
+                <label class="block text-sm font-medium text-gray-700">Počet osob</label>
+                <input type="number" id="req-people" class="w-full border p-2 rounded">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Místo konání</label>
+                <input type="text" id="req-place" class="w-full border p-2 rounded" required>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Datum</label>
+                    <input type="date" id="req-date" class="w-full border p-2 rounded" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Čas</label>
+                    <input type="time" id="req-time" class="w-full border p-2 rounded" required>
+                </div>
+            </div>
+            <p class="text-xs text-gray-500 italic mt-2">* Po odeslání vás bude administrátor kontaktovat pro potvrzení přesného termínu.</p>
+            <div class="flex gap-2 mt-4">
+                <button type="button" onclick="closeRequestModal()" class="flex-1 bg-gray-200 p-2 rounded text-gray-700">Zrušit</button>
+                <button type="submit" class="flex-1 bg-blue-600 text-white p-2 rounded font-bold">Potvrdit a odeslat</button>
+            </div>
+        </form>
+    </div>
+</div>
             <div class="bg-white p-6 rounded-lg shadow">
                 <h3 class="text-lg font-semibold mb-4">Změna přístupového hesla</h3>
                 <form id="change-password-form" class="flex flex-col md:flex-row gap-3">
@@ -274,6 +317,49 @@
                 tbody.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-2 font-medium">${t.title}</td><td class="p-2">${formattedDate}</td><td class="p-2 text-gray-500">${t.period} měs.</td><td class="p-2">${badge}</td></tr>`;
             });
         }
+        function openRequestModal(type) {
+    document.getElementById('req-type').value = type;
+    document.getElementById('modal-title').innerText = 'Poptávka: ' + type;
+    document.getElementById('label-detail').innerText = type === 'Školení' ? 'Název školení' : 'Typ revize / kontroly';
+    
+    // Skrýt počet osob pro revize
+    document.getElementById('group-people').style.display = type === 'Školení' ? 'block' : 'none';
+    
+    document.getElementById('request-modal').classList.remove('hidden');
+}
+
+function closeRequestModal() {
+    document.getElementById('request-modal').classList.add('hidden');
+    document.getElementById('request-form').reset();
+}
+
+// Obsluha odeslání poptávky
+document.getElementById('request-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const payload = {
+        action: 'send_request',
+        companyName: currentUser.companyName,
+        email: currentUser.email,
+        type: document.getElementById('req-type').value,
+        detail: document.getElementById('req-detail').value,
+        people: document.getElementById('req-people').value,
+        place: document.getElementById('req-place').value,
+        date: document.getElementById('req-date').value,
+        time: document.getElementById('req-time').value
+    };
+
+    showLoader(true);
+    const res = await apiCall(payload);
+    showLoader(false);
+
+    if (res.success) {
+        alert('Poptávka byla úspěšně odeslána. Administrátor vás bude kontaktovat pro potvrzení termínu.');
+        closeRequestModal();
+    } else {
+        alert('Chyba při odesílání poptávky.');
+    }
+});
     </script>
 </body>
 </html>
