@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lhůtník BOZP a PO - Ing. Ondřej Toman</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+
+    <div id="loader" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+        <div class="bg-white p-4 rounded-lg shadow-lg font-semibold">Zpracovávám data...</div>
+    </div>
+
+    <div class="max-w-4xl mx-auto p-4 mt-10">
+        
+        <div id="login-screen" class="bg-white p-8 rounded-lg shadow-md max-w-md mx-auto">
+            <h1 class="text-2xl font-bold text-center mb-2">Systém správy BOZP a PO</h1>
+            <p class="text-center text-gray-500 mb-6">Správce: Ing. Ondřej Toman</p>
+            
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium">E-mail</label>
+                    <input type="email" id="email" class="w-full border rounded p-2 mt-1" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Heslo</label>
+                    <input type="password" id="password" class="w-full border rounded p-2 mt-1" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Přihlásit se</button>
+            </form>
+        </div>
+
+        <div id="admin-screen" class="hidden space-y-6">
+            <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow">
+                <h2 class="text-xl font-bold">Administrace - Ing. Ondřej Toman</h2>
+                <button onclick="logout()" class="text-red-600 hover:underline">Odhlásit</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold mb-4">Založit novou společnost</h3>
+                    <form id="add-company-form" class="space-y-3">
+                        <input type="text" id="comp-name" placeholder="Název společnosti" class="w-full border p-2 rounded" required>
+                        <input type="email" id="comp-email" placeholder="Přihlašovací e-mail" class="w-full border p-2 rounded" required>
+                        <input type="text" id="comp-pass" placeholder="Počáteční heslo" class="w-full border p-2 rounded" required>
+                        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded w-full">Založit společnost</button>
+                    </form>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold mb-4">Zadat novou lhůtu / revizi</h3>
+                    <form id="add-task-form" class="space-y-3">
+                        <select id="task-company" class="w-full border p-2 rounded" required>
+                            <option value="">Vyberte společnost...</option>
+                        </select>
+                        <input type="text" id="task-title" placeholder="Název (např. Školení řidičů)" class="w-full border p-2 rounded" required>
+                        <div class="flex gap-2">
+                            <input type="date" id="task-date" class="w-full border p-2 rounded" required title="Datum splnění">
+                            <input type="number" id="task-period" placeholder="Opakování (měsíce)" class="w-full border p-2 rounded" required>
+                        </div>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Uložit lhůtu</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold mb-4">Přehled všech lhůt</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="p-2">Společnost</th>
+                                <th class="p-2">Typ záznamu</th>
+                                <th class="p-2">Datum splnění</th>
+                                <th class="p-2">Opakování</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-tasks-list"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="client-screen" class="hidden space-y-6">
+            <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow">
+                <h2 class="text-xl font-bold">Klientská zóna - <span id="client-company-name"></span></h2>
+                <button onclick="logout()" class="text-red-600 hover:underline">Odhlásit</button>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold mb-4">Vaše nadcházející lhůty BOZP a PO</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b bg-gray-50">
+                                <th class="p-2">Školení / Revize</th>
+                                <th class="p-2">Termín</th>
+                                <th class="p-2">Perioda</th>
+                                <th class="p-2">Stav</th>
+                            </tr>
+                        </thead>
+                        <tbody id="client-tasks-list"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // SEM VLOŽ SVOU URL Z GOOGLE APPS SCRIPTU
+        const API_URL = https://script.google.com/macros/s/AKfycbz-KT3bLL0ZXepc4Mis_b_TP2EYH2b_bVxJzUmIavTQGjhp5ryOyWNk_C5tHB26XgUw/exec; 
+
+        let currentUser = null;
+        let adminClientsCache = [];
+
+        // Zobrazení načítání
+        function showLoader(show) {
+            document.getElementById('loader').style.display = show ? 'flex' : 'none';
+        }
+
+        // Komunikace s Google Apps Script API
+        async function apiCall(dataPayload) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(dataPayload)
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('Chyba komunikace:', error);
+                alert('Chyba při komunikaci se serverem.');
+                return { success: false };
+            }
+        }
+
+        // PŘIHLÁŠENÍ
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            showLoader(true);
+            const res = await apiCall({ action: 'login', email, password });
+            showLoader(false);
+
+            if (res.success) {
+                currentUser = res.user;
+                showScreen(currentUser.role);
+                if (currentUser.role === 'admin') initAdmin();
+                if (currentUser.role === 'client') initClient();
+            } else {
+                alert(res.message);
+            }
+        });
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('login-form').reset();
+            showScreen('login');
+        }
+
+        function showScreen(screenName) {
+            ['login-screen', 'admin-screen', 'client-screen'].forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+            document.getElementById(screenName + '-screen').style.display = 'block';
+        }
+
+        // --- ADMIN ---
+        async function initAdmin() {
+            showLoader(true);
+            const res = await apiCall({ action: 'get_admin_data' });
+            showLoader(false);
+
+            if (res.success) {
+                adminClientsCache = res.clients;
+                updateCompanySelect();
+                renderAdminTasks(res.tasks);
+            }
+        }
+
+        // Nová společnost
+        document.getElementById('add-company-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const companyName = document.getElementById('comp-name').value;
+            const email = document.getElementById('comp-email').value;
+            const password = document.getElementById('comp-pass').value;
+
+            showLoader(true);
+            const res = await apiCall({ action: 'add_user', companyName, email, password });
+            showLoader(false);
+
+            if (res.success) {
+                alert('Společnost uložena.');
+                this.reset();
+                initAdmin(); // Znovu načteme data
+            }
+        });
+
+        // Nová lhůta
+        document.getElementById('add-task-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const companyEmail = document.getElementById('task-company').value;
+            const title = document.getElementById('task-title').value;
+            const date = document.getElementById('task-date').value;
+            const period = document.getElementById('task-period').value;
+
+            showLoader(true);
+            const res = await apiCall({ action: 'add_task', companyEmail, title, date, period });
+            showLoader(false);
+
+            if (res.success) {
+                alert('Lhůta uložena.');
+                this.reset();
+                initAdmin(); // Znovu načteme data
+            }
+        });
+
+        function updateCompanySelect() {
+            const select = document.getElementById('task-company');
+            select.innerHTML = '<option value="">Vyberte společnost...</option>';
+            adminClientsCache.forEach(c => {
+                select.innerHTML += `<option value="${c.email}">${c.companyName}</option>`;
+            });
+        }
+
+        function renderAdminTasks(tasks) {
+            const tbody = document.getElementById('admin-tasks-list');
+            tbody.innerHTML = '';
+            
+            tasks.sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(t => {
+                const client = adminClientsCache.find(c => c.email === t.companyEmail);
+                const companyName = client ? client.companyName : t.companyEmail;
+                
+                // Převod formátu data z Google Sheets
+                const d = new Date(t.date);
+                const formattedDate = !isNaN(d) ? d.toLocaleDateString('cs-CZ') : t.date;
+
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-2 font-medium">${companyName}</td>
+                        <td class="p-2">${t.title}</td>
+                        <td class="p-2">${formattedDate}</td>
+                        <td class="p-2">${t.period} měs.</td>
+                    </tr>`;
+            });
+        }
+
+        // --- KLIENT ---
+        async function initClient() {
+            document.getElementById('client-company-name').textContent = currentUser.companyName;
+            
+            showLoader(true);
+            const res = await apiCall({ action: 'get_client_data', email: currentUser.email });
+            showLoader(false);
+
+            if (res.success) {
+                renderClientTasks(res.tasks);
+            }
+        }
+
+        function renderClientTasks(tasks) {
+            const tbody = document.getElementById('client-tasks-list');
+            tbody.innerHTML = '';
+            const today = new Date();
+
+            tasks.sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(t => {
+                const taskDate = new Date(t.date);
+                const formattedDate = !isNaN(taskDate) ? taskDate.toLocaleDateString('cs-CZ') : t.date;
+                
+                const diffTime = taskDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                let statusBadge = '<span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">V pořádku</span>';
+                if (diffDays < 0) statusBadge = '<span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">Po termínu</span>';
+                else if (diffDays <= 30) statusBadge = '<span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded">Brzy vyprší</span>';
+
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-2 font-medium">${t.title}</td>
+                        <td class="p-2">${formattedDate}</td>
+                        <td class="p-2 text-gray-500">${t.period} měsíců</td>
+                        <td class="p-2">${statusBadge}</td>
+                    </tr>`;
+            });
+        }
+    </script>
+</body>
+</html>
