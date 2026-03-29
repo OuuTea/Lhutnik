@@ -182,3 +182,98 @@
         });
 
         function logout() {
+            currentUser = null;
+            document.getElementById('login-form').reset();
+            showScreen('login');
+        }
+
+        function showScreen(screenName) {
+            ['login-screen', 'admin-screen', 'client-screen'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(screenName + '-screen').classList.remove('hidden');
+        }
+
+        async function initAdmin() {
+            showLoader(true);
+            const res = await apiCall({ action: 'get_admin_data' });
+            showLoader(false);
+            if (res.success) {
+                adminClientsCache = res.clients;
+                updateCompanySelect();
+                renderAdminTasks(res.tasks);
+            }
+        }
+
+        document.getElementById('add-company-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            showLoader(true);
+            const res = await apiCall({ 
+                action: 'add_user', 
+                companyName: document.getElementById('comp-name').value, 
+                email: document.getElementById('comp-email').value, 
+                password: document.getElementById('comp-pass').value 
+            });
+            showLoader(false);
+            if (res.success) { alert('Společnost uložena.'); this.reset(); initAdmin(); }
+        });
+
+        document.getElementById('add-task-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            showLoader(true);
+            const res = await apiCall({ 
+                action: 'add_task', 
+                companyEmail: document.getElementById('task-company').value, 
+                title: document.getElementById('task-title').value, 
+                date: document.getElementById('task-date').value, 
+                period: document.getElementById('task-period').value 
+            });
+            showLoader(false);
+            if (res.success) { alert('Lhůta uložena.'); this.reset(); initAdmin(); }
+        });
+
+        function updateCompanySelect() {
+            const select = document.getElementById('task-company');
+            select.innerHTML = '<option value="">Vyberte společnost...</option>';
+            adminClientsCache.forEach(c => {
+                select.innerHTML += `<option value="${c.email}">${c.companyName}</option>`;
+            });
+        }
+
+        function renderAdminTasks(tasks) {
+            const tbody = document.getElementById('admin-tasks-list');
+            tbody.innerHTML = '';
+            tasks.sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(t => {
+                const client = adminClientsCache.find(c => c.email === t.companyEmail);
+                const companyName = client ? client.companyName : t.companyEmail;
+                const d = new Date(t.date);
+                const formattedDate = !isNaN(d) ? d.toLocaleDateString('cs-CZ') : t.date;
+                tbody.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-2 font-medium">${companyName}</td><td class="p-2">${t.title}</td><td class="p-2">${formattedDate}</td><td class="p-2">${t.period} měs.</td></tr>`;
+            });
+        }
+
+        async function initClient() {
+            document.getElementById('client-company-name').textContent = currentUser.companyName;
+            showLoader(true);
+            const res = await apiCall({ action: 'get_client_data', email: currentUser.email });
+            showLoader(false);
+            if (res.success) renderClientTasks(res.tasks);
+        }
+
+        function renderClientTasks(tasks) {
+            const tbody = document.getElementById('client-tasks-list');
+            tbody.innerHTML = '';
+            const today = new Date();
+            tasks.sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(t => {
+                const taskDate = new Date(t.date);
+                const formattedDate = !isNaN(taskDate) ? taskDate.toLocaleDateString('cs-CZ') : t.date;
+                const diffDays = Math.ceil((taskDate - today) / (1000 * 60 * 60 * 24));
+                let badge = '<span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">V pořádku</span>';
+                if (diffDays < 0) badge = '<span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">Po termínu</span>';
+                else if (diffDays <= 30) badge = '<span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded">Brzy vyprší</span>';
+                tbody.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-2 font-medium">${t.title}</td><td class="p-2">${formattedDate}</td><td class="p-2 text-gray-500">${t.period} měs.</td><td class="p-2">${badge}</td></tr>`;
+            });
+        }
+    </script>
+</body>
+</html>
