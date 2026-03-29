@@ -17,7 +17,6 @@
         <div id="login-screen" class="bg-white p-8 rounded-lg shadow-md max-w-md mx-auto">
             <h1 class="text-2xl font-bold text-center mb-2">Systém správy BOZP a PO</h1>
             <p class="text-center text-gray-500 mb-6">Správce: Ing. Ondřej Toman</p>
-            
             <form id="login-form" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium">E-mail</label>
@@ -51,12 +50,10 @@
                 <div class="bg-white p-6 rounded-lg shadow">
                     <h3 class="text-lg font-semibold mb-4">Zadat novou lhůtu / revizi</h3>
                     <form id="add-task-form" class="space-y-3">
-                        <select id="task-company" class="w-full border p-2 rounded" required>
-                            <option value="">Vyberte společnost...</option>
-                        </select>
+                        <select id="task-company" class="w-full border p-2 rounded" required></select>
                         <input type="text" id="task-title" placeholder="Název (např. Školení řidičů)" class="w-full border p-2 rounded" required>
                         <div class="flex gap-2">
-                            <input type="date" id="task-date" class="w-full border p-2 rounded" required title="Datum splnění">
+                            <input type="date" id="task-date" class="w-full border p-2 rounded" required>
                             <input type="number" id="task-period" placeholder="Opakování (měsíce)" class="w-full border p-2 rounded" required>
                         </div>
                         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Uložit lhůtu</button>
@@ -84,63 +81,17 @@
 
         <div id="client-screen" class="hidden space-y-6">
             <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow">
-                <h2 class="text-xl font-bold">Klientská zóna - <span id="client-company-name"></span></h2>
+                <h2 class="text-xl font-bold text-blue-800" id="client-company-name"></h2>
                 <button onclick="logout()" class="text-red-600 hover:underline">Odhlásit</button>
             </div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-    <button onclick="openRequestModal('Školení')" class="bg-blue-600 text-white p-4 rounded-lg shadow hover:bg-blue-700 transition font-bold">
-        📢 Poptávka školení
-    </button>
-    <button onclick="openRequestModal('Revize')" class="bg-green-600 text-white p-4 rounded-lg shadow hover:bg-green-700 transition font-bold">
-        🛠️ Poptávka revize / kontroly
-    </button>
-</div>
 
-<div id="request-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50 p-4">
-    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
-        <h3 id="modal-title" class="text-xl font-bold mb-4">Poptávka</h3>
-        <form id="request-form" class="space-y-3">
-            <input type="hidden" id="req-type">
-            <div>
-                <label id="label-detail" class="block text-sm font-medium text-gray-700">Název / Typ</label>
-                <input type="text" id="req-detail" class="w-full border p-2 rounded" required>
-            </div>
-            <div id="group-people">
-                <label class="block text-sm font-medium text-gray-700">Počet osob</label>
-                <input type="number" id="req-people" class="w-full border p-2 rounded">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Místo konání</label>
-                <input type="text" id="req-place" class="w-full border p-2 rounded" required>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Datum</label>
-                    <input type="date" id="req-date" class="w-full border p-2 rounded" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Čas</label>
-                    <input type="time" id="req-time" class="w-full border p-2 rounded" required>
-                </div>
-            </div>
-            <p class="text-xs text-gray-500 italic mt-2">* Po odeslání vás bude administrátor kontaktovat pro potvrzení přesného termínu.</p>
-            <div class="flex gap-2 mt-4">
-                <button type="button" onclick="closeRequestModal()" class="flex-1 bg-gray-200 p-2 rounded text-gray-700">Zrušit</button>
-                <button type="submit" class="flex-1 bg-blue-600 text-white p-2 rounded font-bold">Potvrdit a odeslat</button>
-            </div>
-        </form>
-    </div>
-</div>
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h3 class="text-lg font-semibold mb-4">Změna přístupového hesla</h3>
-                <form id="change-password-form" class="flex flex-col md:flex-row gap-3">
-                    <input type="password" id="new-password" placeholder="Nové heslo" class="border p-2 rounded w-full" required>
-                    <button type="submit" class="bg-orange-600 text-white px-6 py-2 rounded hover:bg-orange-700 transition">Aktualizovat heslo</button>
-                </form>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button onclick="openRequestModal('Školení')" class="bg-blue-600 text-white p-4 rounded-lg shadow hover:bg-blue-700 transition font-bold text-lg">📢 Poptávka školení</button>
+                <button onclick="openRequestModal('Revize')" class="bg-green-600 text-white p-4 rounded-lg shadow hover:bg-green-700 transition font-bold text-lg">🛠️ Poptávka revize / kontroly</button>
             </div>
 
             <div class="bg-white p-6 rounded-lg shadow">
-                <h3 class="text-lg font-semibold mb-4">Vaše nadcházející lhůty BOZP a PO</h3>
+                <h3 class="text-lg font-semibold mb-4">Vaše nadcházející lhůty</h3>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
@@ -155,116 +106,130 @@
                     </table>
                 </div>
             </div>
-        </div>
 
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold mb-4 italic text-gray-600">Nastavení účtu</h3>
+                <form id="change-password-form" class="flex flex-col md:flex-row gap-3">
+                    <input type="password" id="new-password" placeholder="Nové heslo" class="border p-2 rounded w-full" required>
+                    <button type="submit" class="bg-gray-700 text-white px-6 py-2 rounded hover:bg-black transition">Změnit heslo</button>
+                </form>
+            </div>
+        </div>
     </div>
-    
+
+    <div id="request-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50 p-4">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+            <h3 id="modal-title" class="text-xl font-bold mb-4">Poptávka</h3>
+            <form id="request-form" class="space-y-3">
+                <input type="hidden" id="req-type">
+                <div>
+                    <label id="label-detail" class="block text-sm font-medium text-gray-700">Název / Typ</label>
+                    <input type="text" id="req-detail" class="w-full border p-2 rounded" required>
+                </div>
+                <div id="group-people">
+                    <label class="block text-sm font-medium text-gray-700">Počet osob</label>
+                    <input type="number" id="req-people" class="w-full border p-2 rounded">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Místo konání</label>
+                    <input type="text" id="req-place" class="w-full border p-2 rounded" required>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="date" id="req-date" class="w-full border p-2 rounded" required>
+                    <input type="time" id="req-time" class="w-full border p-2 rounded" required>
+                </div>
+                <div class="flex gap-2 mt-4">
+                    <button type="button" onclick="closeRequestModal()" class="flex-1 bg-gray-200 p-2 rounded">Zrušit</button>
+                    <button type="submit" class="flex-1 bg-blue-600 text-white p-2 rounded font-bold">Odeslat poptávku</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        // ZDE VLOŽ SVOU AKTUÁLNÍ URL Z APPS SCRIPTU
         const API_URL = 'https://script.google.com/macros/s/AKfycbx6e9SC3eu8CUQEJkBNtC_qiGxE9B8yRAVVUkkE7YOXD73bIJ0Mp0CEpmk7E3bZvfYI/exec'; 
 
         let currentUser = null;
         let adminClientsCache = [];
 
-        function showLoader(show) {
-            document.getElementById('loader').classList.toggle('hidden', !show);
-        }
+        function showLoader(show) { document.getElementById('loader').classList.toggle('hidden', !show); }
 
-        async function apiCall(dataPayload) {
+        async function apiCall(data) {
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(dataPayload)
+                    body: JSON.stringify(data)
                 });
                 return await response.json();
-            } catch (error) {
-                console.error('Chyba komunikace:', error);
-                alert('Chyba při komunikaci se serverem.');
+            } catch (e) {
+                alert('Chyba komunikace se serverem.');
                 return { success: false };
             }
         }
 
-        document.getElementById('login-form').addEventListener('submit', async function(e) {
+        function showScreen(name) {
+            ['login-screen', 'admin-screen', 'client-screen'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById(name + '-screen').classList.remove('hidden');
+        }
+
+        function logout() { currentUser = null; showScreen('login'); }
+
+        // LOGIN
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
             showLoader(true);
-            const res = await apiCall({ action: 'login', email, password });
+            const res = await apiCall({ action: 'login', email: document.getElementById('email').value, password: document.getElementById('password').value });
             showLoader(false);
-
             if (res.success) {
                 currentUser = res.user;
                 showScreen(currentUser.role);
-                if (currentUser.role === 'admin') initAdmin();
-                if (currentUser.role === 'client') initClient();
-            } else {
-                alert(res.message);
-            }
+                currentUser.role === 'admin' ? initAdmin() : initClient();
+            } else { alert(res.message); }
         });
 
-        document.getElementById('change-password-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const newPassword = document.getElementById('new-password').value;
-            if (!confirm('Opravdu si přejete změnit své heslo?')) return;
-
-            showLoader(true);
-            const res = await apiCall({ 
-                action: 'change_password', 
-                email: currentUser.email, 
-                newPassword: newPassword 
-            });
-            showLoader(false);
-
-            if (res.success) {
-                alert('Heslo úspěšně změněno.');
-                this.reset();
-            } else {
-                alert('Chyba: Heslo se nepodařilo změnit.');
-            }
-        });
-
-        function logout() {
-            currentUser = null;
-            document.getElementById('login-form').reset();
-            showScreen('login');
-        }
-
-        function showScreen(screenName) {
-            ['login-screen', 'admin-screen', 'client-screen'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
-            document.getElementById(screenName + '-screen').classList.remove('hidden');
-        }
-
+        // ADMIN LOGIKA
         async function initAdmin() {
             showLoader(true);
             const res = await apiCall({ action: 'get_admin_data' });
             showLoader(false);
             if (res.success) {
                 adminClientsCache = res.clients;
-                updateCompanySelect();
-                renderAdminTasks(res.tasks);
+                const select = document.getElementById('task-company');
+                select.innerHTML = '<option value="">Vyberte společnost...</option>';
+                res.clients.forEach(c => select.innerHTML += `<option value="${c.email}">${c.companyName}</option>`);
+                
+                const tbody = document.getElementById('admin-tasks-list');
+                tbody.innerHTML = '';
+                res.tasks.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(t => {
+                    const client = res.clients.find(c => c.email === t.companyEmail);
+                    const dateStr = t.date ? new Date(t.date).toLocaleDateString('cs-CZ') : '---';
+                    tbody.innerHTML += `<tr class="border-b">
+                        <td class="p-2 font-bold">${client ? client.companyName : t.companyEmail}</td>
+                        <td class="p-2">${t.title}</td><td class="p-2">${dateStr}</td><td class="p-2">${t.period} měs.</td>
+                    </tr>`;
+                });
             }
         }
 
-        document.getElementById('add-company-form').addEventListener('submit', async function(e) {
+        document.getElementById('add-company-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             showLoader(true);
-            const res = await apiCall({ 
+            await apiCall({ 
                 action: 'add_user', 
                 companyName: document.getElementById('comp-name').value, 
                 email: document.getElementById('comp-email').value, 
                 password: document.getElementById('comp-pass').value 
             });
             showLoader(false);
-            if (res.success) { alert('Společnost uložena.'); this.reset(); initAdmin(); }
+            e.target.reset(); initAdmin();
         });
 
-        document.getElementById('add-task-form').addEventListener('submit', async function(e) {
+        document.getElementById('add-task-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             showLoader(true);
-            const res = await apiCall({ 
+            await apiCall({ 
                 action: 'add_task', 
                 companyEmail: document.getElementById('task-company').value, 
                 title: document.getElementById('task-title').value, 
@@ -272,94 +237,69 @@
                 period: document.getElementById('task-period').value 
             });
             showLoader(false);
-            if (res.success) { alert('Lhůta uložena.'); this.reset(); initAdmin(); }
+            e.target.reset(); initAdmin();
         });
 
-        function updateCompanySelect() {
-            const select = document.getElementById('task-company');
-            select.innerHTML = '<option value="">Vyberte společnost...</option>';
-            adminClientsCache.forEach(c => {
-                select.innerHTML += `<option value="${c.email}">${c.companyName}</option>`;
-            });
-        }
-
-        function renderAdminTasks(tasks) {
-            const tbody = document.getElementById('admin-tasks-list');
-            tbody.innerHTML = '';
-            tasks.sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(t => {
-                const client = adminClientsCache.find(c => c.email === t.companyEmail);
-                const companyName = client ? client.companyName : t.companyEmail;
-                const d = new Date(t.date);
-                const formattedDate = !isNaN(d) ? d.toLocaleDateString('cs-CZ') : t.date;
-                tbody.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-2 font-medium">${companyName}</td><td class="p-2">${t.title}</td><td class="p-2">${formattedDate}</td><td class="p-2">${t.period} měs.</td></tr>`;
-            });
-        }
-
+        // CLIENT LOGIKA
         async function initClient() {
-            document.getElementById('client-company-name').textContent = currentUser.companyName;
+            document.getElementById('client-company-name').innerText = currentUser.companyName;
             showLoader(true);
             const res = await apiCall({ action: 'get_client_data', email: currentUser.email });
             showLoader(false);
-            if (res.success) renderClientTasks(res.tasks);
+            if (res.success) {
+                const tbody = document.getElementById('client-tasks-list');
+                tbody.innerHTML = '';
+                const today = new Date();
+                res.tasks.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(t => {
+                    const d = new Date(t.date);
+                    const diff = Math.ceil((d - today) / (1000*60*60*24));
+                    let badge = '<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">V pořádku</span>';
+                    if (diff < 0) badge = '<span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">Po termínu</span>';
+                    else if (diff <= 30) badge = '<span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">Blíží se</span>';
+                    tbody.innerHTML += `<tr class="border-b hover:bg-gray-50">
+                        <td class="p-2 font-medium">${t.title}</td><td class="p-2">${d.toLocaleDateString('cs-CZ')}</td>
+                        <td class="p-2 text-gray-500">${t.period} měs.</td><td class="p-2">${badge}</td>
+                    </tr>`;
+                });
+            }
         }
 
-        function renderClientTasks(tasks) {
-            const tbody = document.getElementById('client-tasks-list');
-            tbody.innerHTML = '';
-            const today = new Date();
-            tasks.sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(t => {
-                const taskDate = new Date(t.date);
-                const formattedDate = !isNaN(taskDate) ? taskDate.toLocaleDateString('cs-CZ') : t.date;
-                const diffDays = Math.ceil((taskDate - today) / (1000 * 60 * 60 * 24));
-                let badge = '<span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">V pořádku</span>';
-                if (diffDays < 0) badge = '<span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">Po termínu</span>';
-                else if (diffDays <= 30) badge = '<span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded">Brzy vyprší</span>';
-                tbody.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-2 font-medium">${t.title}</td><td class="p-2">${formattedDate}</td><td class="p-2 text-gray-500">${t.period} měs.</td><td class="p-2">${badge}</td></tr>`;
-            });
-        }
+        // POPTÁVKY (MODAL)
         function openRequestModal(type) {
-    document.getElementById('req-type').value = type;
-    document.getElementById('modal-title').innerText = 'Poptávka: ' + type;
-    document.getElementById('label-detail').innerText = type === 'Školení' ? 'Název školení' : 'Typ revize / kontroly';
-    
-    // Skrýt počet osob pro revize
-    document.getElementById('group-people').style.display = type === 'Školení' ? 'block' : 'none';
-    
-    document.getElementById('request-modal').classList.remove('hidden');
-}
+            document.getElementById('req-type').value = type;
+            document.getElementById('modal-title').innerText = 'Poptávka: ' + type;
+            document.getElementById('label-detail').innerText = type === 'Školení' ? 'Název školení' : 'Typ revize / kontroly';
+            document.getElementById('group-people').style.display = type === 'Školení' ? 'block' : 'none';
+            document.getElementById('request-modal').classList.remove('hidden');
+        }
+        function closeRequestModal() { document.getElementById('request-modal').classList.add('hidden'); }
 
-function closeRequestModal() {
-    document.getElementById('request-modal').classList.add('hidden');
-    document.getElementById('request-form').reset();
-}
+        document.getElementById('request-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showLoader(true);
+            const res = await apiCall({
+                action: 'send_request',
+                companyName: currentUser.companyName,
+                email: currentUser.email,
+                type: document.getElementById('req-type').value,
+                detail: document.getElementById('req-detail').value,
+                people: document.getElementById('req-people').value,
+                place: document.getElementById('req-place').value,
+                date: document.getElementById('req-date').value,
+                time: document.getElementById('req-time').value
+            });
+            showLoader(false);
+            if (res.success) { alert('Odesláno! Budeme vás kontaktovat.'); closeRequestModal(); }
+        });
 
-// Obsluha odeslání poptávky
-document.getElementById('request-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const payload = {
-        action: 'send_request',
-        companyName: currentUser.companyName,
-        email: currentUser.email,
-        type: document.getElementById('req-type').value,
-        detail: document.getElementById('req-detail').value,
-        people: document.getElementById('req-people').value,
-        place: document.getElementById('req-place').value,
-        date: document.getElementById('req-date').value,
-        time: document.getElementById('req-time').value
-    };
-
-    showLoader(true);
-    const res = await apiCall(payload);
-    showLoader(false);
-
-    if (res.success) {
-        alert('Poptávka byla úspěšně odeslána. Administrátor vás bude kontaktovat pro potvrzení termínu.');
-        closeRequestModal();
-    } else {
-        alert('Chyba při odesílání poptávky.');
-    }
-});
+        // ZMĚNA HESLA
+        document.getElementById('change-password-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showLoader(true);
+            const res = await apiCall({ action: 'change_password', email: currentUser.email, newPassword: document.getElementById('new-password').value });
+            showLoader(false);
+            if (res.success) { alert('Heslo změněno.'); e.target.reset(); }
+        });
     </script>
 </body>
 </html>
